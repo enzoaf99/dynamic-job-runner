@@ -19,26 +19,12 @@
             <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
                 <ul class="navbar-nav flex-grow-1">
                     <li class="nav-item">
-                        <a class="nav-link @(ViewContext.RouteData.Values["Controller"].ToString() == "Home" ? "active" : "")"
-                           asp-controller="Home" asp-action="Index">Home</a>
+                        <a class="nav-link @(ViewContext.RouteData.Values["Action"].ToString() == "Home" ? "active" : "")"
+                           asp-controller="Jobs" asp-action="Home">Home</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link @(ViewContext.RouteData.Values["Controller"].ToString() == "Jobs" ? "active" : "")"
+                        <a class="nav-link @(ViewContext.RouteData.Values["Action"].ToString() == "Index" ? "active" : "")"
                            asp-controller="Jobs" asp-action="Index">Jobs</a>
-                    </li>
-                    <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle" href="#" role="button"
-                           data-bs-toggle="dropdown" aria-expanded="false">
-                            Acciones
-                        </a>
-                        <ul class="dropdown-menu">
-                            <li>
-                                <a class="dropdown-item" asp-controller="Jobs" asp-action="Create">
-                                    <i class="bi bi-plus-circle"></i> Create new Job
-                                </a>
-                            </li>
-                            <!-- Puedes agregar más opciones aquí -->
-                        </ul>
                     </li>
                 </ul>
                 <div class="d-flex">
@@ -59,7 +45,7 @@
 
 <footer class="border-top footer text-muted">
     <div class="container">
-        &copy; @DateTime.Now.Year - Job Runner - <a asp-controller="Home" asp-action="Privacy">Privacy</a>
+        &copy; @DateTime.Now.Year - Dynamic Job Runner - <a asp-controller="Home" asp-action="Privacy">Privacy</a>
     </div>
 </footer>
 
