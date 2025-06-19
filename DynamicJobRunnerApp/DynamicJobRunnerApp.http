@@ -1,0 +1,6 @@
+@DynamicJobRunnerApp_HostAddress = http://localhost:5095
+
+GET {{DynamicJobRunnerApp_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###

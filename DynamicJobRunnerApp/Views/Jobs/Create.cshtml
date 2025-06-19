@@ -1,0 +1,28 @@
+﻿@model JobDefinition
+
+<form asp-action="Create" method="post">
+    <div class="form-group">
+        <label asp-for="Name">Nombre</label>
+        <input asp-for="Name" class="form-control" />
+        <span asp-validation-for="Name" class="text-danger"></span>
+    </div>
+
+    <div class="form-group">
+        <label asp-for="Script">Script</label>
+        <textarea asp-for="Script" class="form-control"></textarea>
+        <span asp-validation-for="Script" class="text-danger"></span>
+    </div>
+
+    <div class="form-group">
+        <label asp-for="CronExpression">Expresión Cron</label>
+        <input asp-for="CronExpression" class="form-control" />
+        <span asp-validation-for="CronExpression" class="text-danger"></span>
+        <small class="form-text text-muted">
+            Ejemplos:<br/>
+            "0 0/5 * * * ?" - Cada 5 minutos<br/>
+            "0 0 12 * * ?" - Todos los días a las 12:00
+        </small>
+    </div>
+
+    <button type="submit" class="btn btn-primary">Crear</button>
+</form>

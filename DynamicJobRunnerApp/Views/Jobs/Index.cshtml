@@ -1,0 +1,72 @@
+﻿@model List<DynamicJobRunnerApp.Models.JobDefinition>
+
+<h2>Jobs</h2>
+
+@if (TempData["Message"] != null)
+{
+    <div class="alert alert-success alert-dismissible fade show" role="alert">
+        @TempData["Message"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+}
+
+@if (TempData["Error"] != null)
+{
+    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+        @TempData["Error"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+}
+
+<a class="btn btn-primary mb-3" href="@Url.Action("Create", "Jobs")">Crear Job</a>
+
+@if (!Model.Any())
+{
+    <div class="alert alert-info">
+        <h4 class="alert-heading">No hay jobs configurados</h4>
+        <p>Actualmente no hay ningún job programado en el sistema.</p>
+        <hr>
+        <p class="mb-0">Para comenzar, haga clic en el botón "Crear Job" y configure su primer tarea programada.</p>
+    </div>
+}
+else
+{
+    <table class="table table-striped">
+        <thead>
+        <tr>
+            <th>Nombre</th>
+            <th>Cron</th>
+            <th>Script</th>
+            <th>Estado</th>
+            <th>Acciones</th>
+        </tr>
+        </thead>
+        <tbody>
+        @foreach (var job in Model)
+        {
+            <tr class="@(!job.IsActive ? "table-secondary" : "")">
+                <td>@job.Name</td>
+                <td>@job.CronExpression</td>
+                <td><code>@job.Script</code></td>
+                <td>
+                        <span class="badge @(job.IsActive ? "bg-success" : "bg-secondary")">
+                            @(job.IsActive ? "Activo" : "Inactivo")
+                        </span>
+                </td>
+                <td>
+                    <div class="btn-group">
+                        <form asp-action="ToggleStatus" asp-route-id="@job.Id" method="post" style="display: inline;">
+                            <button type="submit" class="btn btn-sm @(job.IsActive ? "btn-warning" : "btn-success")"
+                                    onclick="return confirm('¿Está seguro de @(job.IsActive ? "desactivar" : "activar") este job?')">
+                                @(job.IsActive ? "Desactivar" : "Activar")
+                            </button>
+                        </form>
+                        <a class="btn btn-sm btn-primary" asp-action="Edit" asp-route-id="@job.Id">Editar</a>
+                        <a class="btn btn-sm btn-info" href="@Url.Action("History", "Jobs", new { id = job.Id })">Historial</a>
+                    </div>
+                </td>
+            </tr>
+        }
+        </tbody>
+    </table>
+}

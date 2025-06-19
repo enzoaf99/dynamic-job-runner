@@ -1,0 +1,45 @@
+﻿version: '3.9'
+
+services:
+  db:
+    image: postgres:16
+    restart: always
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: yourpass
+      POSTGRES_DB: jobrunner
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    networks:
+      - jobnetwork
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "8080:80"
+    environment:
+      ASPNETCORE_ENVIRONMENT: Development
+      ASPNETCORE_URLS: "http://+:80"
+      ConnectionStrings__Default: "Host=db;Database=jobrunner;Username=postgres;Password=yourpass"
+    depends_on:
+      db:
+        condition: service_healthy
+    networks:
+      - jobnetwork
+    restart: always
+
+volumes:
+  pgdata:
+
+networks:
+  jobnetwork:
+    driver: bridge

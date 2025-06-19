@@ -1,0 +1,31 @@
+﻿@model DynamicJobRunnerApp.Models.JobDefinition
+
+<h2>Editar Job</h2>
+
+<form asp-action="Edit" method="post">
+    <input type="hidden" asp-for="Id"/>
+    
+    <div class="mb-3">
+        <label asp-for="Name" class="form-label">Nombre</label>
+        <input asp-for="Name" class="form-control"/>
+        <span asp-validation-for="Name" class="text-danger"></span>
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="CronExpression" class="form-label">Expresión CRON</label>
+        <input asp-for="CronExpression" class="form-control"/>
+        <span asp-validation-for="CronExpression" class="text-danger"></span>
+        <small class="form-text text-muted">Ejemplo: 0 0/15 * * * ? (cada 15 minutos)</small>
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="Script" class="form-label">Script</label>
+        <textarea asp-for="Script" class="form-control" rows="4"></textarea>
+        <span asp-validation-for="Script" class="text-danger"></span>
+    </div>
+
+    <div class="btn-group">
+        <button type="submit" class="btn btn-primary">Guardar</button>
+        <a asp-action="Index" class="btn btn-secondary">Cancelar</a>
+    </div>
+</form>
