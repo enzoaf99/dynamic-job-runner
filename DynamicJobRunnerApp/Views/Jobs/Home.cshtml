@@ -1,0 +1,86 @@
+﻿@model DynamicJobRunnerApp.ViewModel.HomeViewModel
+
+<h2>Dashboard</h2>
+
+<div class="row">
+    <!-- Total Jobs -->
+    <div class="col-md-4">
+        <div class="card text-white bg-primary mb-3">
+            <div class="card-header">Total Jobs Created</div>
+            <div class="card-body">
+                <h5 class="card-title text-center display-4">@Model.TotalJobs</h5>
+                <p class="card-text text-center">Total number of jobs created in the system.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Failed Jobs -->
+    <div class="col-md-4">
+        <div class="card text-white bg-danger mb-3">
+            <div class="card-header">Failed Jobs (Last Week)</div>
+            <div class="card-body">
+                <h5 class="card-title text-center display-4">@Model.FailedJobsThisWeek</h5>
+                <p class="card-text text-center">Jobs that failed execution in the last 7 days.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Active Jobs -->
+    <div class="col-md-4">
+        <div class="card text-white bg-success mb-3">
+            <div class="card-header">Active Jobs</div>
+            <div class="card-body">
+                <h5 class="card-title text-center display-4">@Model.ActiveJobs</h5>
+                <p class="card-text text-center">Number of currently active jobs.</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <!-- Completed Jobs (Last Week) -->
+    <div class="col-md-6">
+        <div class="card text-white bg-info mb-3">
+            <div class="card-header">Completed Jobs (Last Week)</div>
+            <div class="card-body">
+                <h5 class="card-title text-center display-4">@Model.CompletedJobsLastWeek</h5>
+                <p class="card-text text-center">Jobs successfully executed in the last 7 days.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Running Jobs -->
+    <div class="col-md-6">
+        <div class="card text-white bg-warning mb-3">
+            <div class="card-header">Running Jobs</div>
+            <div class="card-body">
+                <h5 class="card-title text-center display-4">@Model.RunningJobs</h5>
+                <p class="card-text text-center">Jobs currently running.</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <!-- Last Enqueued Jobs -->
+    <div class="col-md-12">
+        <div class="card text-white bg-secondary mb-3">
+            <div class="card-header">Last Enqueued Jobs</div>
+            <div class="card-body">
+                @if (Model.LastEnqueuedJobs.Any())
+                {
+                    <ul class="list-group">
+                        @foreach (var job in Model.LastEnqueuedJobs)
+                        {
+                            <li class="list-group-item text-dark">@job</li>
+                        }
+                    </ul>
+                }
+                else
+                {
+                    <p class="card-text text-center">No jobs have been enqueued recently.</p>
+                }
+            </div>
+        </div>
+    </div>
+</div>

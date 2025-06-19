@@ -3,12 +3,14 @@ using DynamicJobRunnerApp.Enums;
 using DynamicJobRunnerApp.Models;
 using DynamicJobRunnerApp.Services;
 using DynamicJobRunnerApp.ViewModel;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Quartz;
 
 namespace DynamicJobRunnerApp.Controllers;
 
+[Authorize]
 public class JobsController : Controller
 {
     private readonly AppDbContext _db;
@@ -309,5 +311,47 @@ public class JobsController : Controller
             TempData["Error"] = "Error al cancelar la ejecución.";
             return RedirectToAction(nameof(Executions));
         }
+    }
+    
+    public async Task<IActionResult> Home()
+    {
+        // Get total number of jobs created
+        var totalJobs = await _db.JobDefinitions.CountAsync();
+
+        // Get the total number of jobs failed in the last week
+        var lastWeek = DateTime.UtcNow.AddDays(-7);
+        var failedJobs = await _db.JobSchedules
+            .CountAsync(s => s.Status == Enums.JobStatus.Failed && s.EnqueuedAt >= lastWeek);
+
+        // Get the number of active jobs
+        var activeJobs = await _db.JobDefinitions.CountAsync(j => j.IsActive);
+
+        // Get the number of successfully completed jobs in the last week
+        var completedJobsLastWeek = await _db.JobSchedules
+            .CountAsync(s => s.Status == Enums.JobStatus.Success && s.EnqueuedAt >= lastWeek);
+
+        // Get the number of jobs currently running
+        var runningJobs = await _db.JobSchedules.CountAsync(s => s.Status == Enums.JobStatus.Running);
+
+        // Get the last 5 recently enqueued jobs
+        var lastEnqueuedJobs = await _db.JobSchedules
+            .OrderByDescending(s => s.EnqueuedAt)
+            .Take(5)
+            .Select(s => new { s.JobDefinition.Name, s.EnqueuedAt }) // Select only required fields
+            .ToListAsync();
+
+        // Pass all calculated KPIs to the view model
+        var model = new HomeViewModel
+        {
+            TotalJobs = totalJobs,
+            FailedJobsThisWeek = failedJobs,
+            ActiveJobs = activeJobs,
+            CompletedJobsLastWeek = completedJobsLastWeek,
+            RunningJobs = runningJobs,
+            LastEnqueuedJobs = lastEnqueuedJobs.Select(j => $"{j.Name}, enqueued at {j.EnqueuedAt:yyyy-MM-dd HH:mm}").ToList()
+        };
+
+        // Return the view with model data
+        return View(model);
     }
 }
