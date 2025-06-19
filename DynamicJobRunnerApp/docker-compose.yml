@@ -5,9 +5,9 @@ services:
     image: postgres:16
     restart: always
     environment:
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: yourpass
-      POSTGRES_DB: jobrunner
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-yourpass}
+      POSTGRES_DB: ${POSTGRES_DB:-jobrunner}
     ports:
       - "5432:5432"
     volumes:
@@ -15,7 +15,7 @@ services:
     networks:
       - jobnetwork
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-postgres}"]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -27,9 +27,9 @@ services:
     ports:
       - "8080:80"
     environment:
-      ASPNETCORE_ENVIRONMENT: Development
-      ASPNETCORE_URLS: "http://+:80"
-      ConnectionStrings__Default: "Host=db;Database=jobrunner;Username=postgres;Password=yourpass"
+      ASPNETCORE_ENVIRONMENT: ${ASPNETCORE_ENVIRONMENT:-Development}
+      ASPNETCORE_URLS: ${ASPNETCORE_URLS:-http://+:80}
+      ConnectionStrings__Default: "Host=${POSTGRES_HOST:-db};Database=${POSTGRES_DB:-jobrunner};Username=${POSTGRES_USER:-postgres};Password=${POSTGRES_PASSWORD:-yourpass}"
     depends_on:
       db:
         condition: service_healthy
