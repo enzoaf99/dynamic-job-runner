@@ -1,9 +1,10 @@
-﻿<!DOCTYPE html>
+﻿@using System.Globalization
+<!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>@ViewData["Title"] - Job Runner</title>
+    <title>Dynamic Job Runner</title>
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
 </head>
@@ -19,7 +20,7 @@
                 <ul class="navbar-nav flex-grow-1">
                     <li class="nav-item">
                         <a class="nav-link @(ViewContext.RouteData.Values["Controller"].ToString() == "Home" ? "active" : "")"
-                           asp-controller="Home" asp-action="Index">Inicio</a>
+                           asp-controller="Home" asp-action="Index">Home</a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link @(ViewContext.RouteData.Values["Controller"].ToString() == "Jobs" ? "active" : "")"
@@ -33,7 +34,7 @@
                         <ul class="dropdown-menu">
                             <li>
                                 <a class="dropdown-item" asp-controller="Jobs" asp-action="Create">
-                                    <i class="bi bi-plus-circle"></i> Crear Nuevo Job
+                                    <i class="bi bi-plus-circle"></i> Create new Job
                                 </a>
                             </li>
                             <!-- Puedes agregar más opciones aquí -->
@@ -42,7 +43,7 @@
                 </ul>
                 <div class="d-flex">
                         <span class="navbar-text">
-                            <i class="bi bi-clock"></i> Servidor: @DateTime.Now.ToString("dd/MM/yyyy HH:mm")
+                            <i class="bi bi-clock"></i> Server: @DateTime.Now.ToString(CultureInfo.InvariantCulture)
                         </span>
                 </div>
             </div>
@@ -58,7 +59,7 @@
 
 <footer class="border-top footer text-muted">
     <div class="container">
-        &copy; @DateTime.Now.Year - Job Runner - <a asp-controller="Home" asp-action="Privacy">Privacidad</a>
+        &copy; @DateTime.Now.Year - Job Runner - <a asp-controller="Home" asp-action="Privacy">Privacy</a>
     </div>
 </footer>
 
@@ -66,7 +67,7 @@
 <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
 <script src="~/js/site.js" asp-append-version="true"></script>
 
-<!-- Scripts de validación -->
+<!-- Scripts -->
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/jquery-validation@1.19.5/dist/jquery.validate.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/jquery-validation-unobtrusive@3.2.13/dist/jquery.validate.unobtrusive.min.js"></script>
