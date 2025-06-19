@@ -2,10 +2,12 @@
 
 An ASP.NET Core application to schedule, run, and manage dynamic jobs with real-time interruption support.
 
-Description
+## Description
+
 Dynamic Job Runner App is designed to let users schedule and manage dynamic job executions using Cron expressions for timing. It also supports advanced functionality like real-time job interruption. It’s ideal for tasks that require concurrent processing or scheduled intervals, such as sending emails, executing scripts, or managing background operations.
 
-Key Features:
+## Key Features
+
 🕒 Cron-based scheduling
 
 🛠️ Real-time job interruption using Quartz.NET
@@ -16,7 +18,7 @@ Key Features:
 
 🎯 Clean and modular architecture with Entity Framework Core support
 
-Tech Stack
+## Tech Stack
 ASP.NET Core 8.0 – Main framework for building the web application
 
 Quartz.NET – Job scheduling and execution engine
@@ -25,9 +27,7 @@ Entity Framework Core – ORM for data access and modeling
 
 Razor Pages & Bootstrap – UI components and responsive design
 
-Screenshots (add image links if available)
-<p align="center"> <img src="url_screenshot_1" alt="Main screen" width="700"> <br> <em>Main dashboard: manage and schedule jobs</em> </p> <p align="center"> <img src="url_screenshot_2" alt="Execution history" width="700"> <br> <em>Job execution history</em> </p>
-Getting Started
+## Getting Started
 Clone the repository:
 
 bash
@@ -99,6 +99,6 @@ This project is licensed under the MIT License, which means you can freely use, 
 Contact
 📧 Feel free to reach out if you have questions or suggestions:
 
-GitHub: your-username
+GitHub: enzoaf99
 
-Email: your.email@example.com
+Email: enzoafernandez99@gmail.com
