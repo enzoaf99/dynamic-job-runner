@@ -72,9 +72,9 @@ docker-compose down
 ### **Create a New Job**
 
 1. Go to the dashboard, enter the job details:
-  - A name for the job.
-  - A valid Cron expression for scheduling.
-  - The script or command to execute (e.g., a `curl` command).
+- A name for the job.
+- A valid Cron expression for scheduling.
+- The script or command to execute (e.g., a `curl` command).
 2. Enable or disable the job as needed.
 
 ### **Manage Existing Jobs**
@@ -88,7 +88,7 @@ From the dashboard, you can:
 ### **Monitor Executions**
 
 - 📊 Review the **execution history** to inspect past results.
-- ❌ Cancel running jobs in real-time as necessary.
+- ❌ Cancel running jobs in real time as necessary.
 
 ---
 
@@ -109,11 +109,21 @@ You can modify these values as needed in the `docker-compose.yml` file.
 
 ### **Environment Variables**
 
-The application is configured to use the following environment variables:
-- `ASPNETCORE_ENVIRONMENT`: Set to `Development` by default.
-- `ConnectionStrings__Default`: Points to the PostgreSQL database service (`db`).
+The application relies on the following environment variables for customization:
 
-These variables are passed in the `docker-compose.yml` configuration.
+- `POSTGRES_USER`: PostgreSQL database username (default: `postgres`).
+- `POSTGRES_PASSWORD`: PostgreSQL database password (default: `yourpass`).
+- `POSTGRES_DB`: PostgreSQL database name (default: `jobrunner`).
+- `ASPNETCORE_ENVIRONMENT`: Specifies the environment for the app (default: `Development`).
+- `ASPNETCORE_URLS`: URL bindings for the app (default: `http://+:80`).
+- `ConnectionStrings__Default`: Connection string for the database.
+
+Additionally, two new environment variables are available for basic authentication:
+
+- `AUTH_USERNAME`: Username for basic authentication (default: `admin`).
+- `AUTH_PASSWORD`: Password for basic authentication (default: `securepassword`).
+
+These are configured in the `docker-compose.yml` file and can be customized as needed.
 
 ---
 
@@ -153,4 +163,4 @@ This project is licensed under the **MIT License**. You can use, modify, and dis
 If you have any questions or suggestions, feel free to reach out:
 
 - 🌐 **GitHub:** [@enzoaf99](https://github.com/enzoaf99)
-- 📧 **Email:** enzoafernandez99@gmail.com  
+- 📧 **Email:** enzoafernandez99@gmail.com
