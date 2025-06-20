@@ -31,7 +31,7 @@ services:
       AUTH_PASSWORD: ${AUTH_PASSWORD:-securepassword}
       ASPNETCORE_ENVIRONMENT: ${ASPNETCORE_ENVIRONMENT:-Development}
       ASPNETCORE_URLS: ${ASPNETCORE_URLS:-http://+:80}
-      ConnectionStrings__Default: "Host=${POSTGRES_HOST:-db};Database=${POSTGRES_DB:-jobrunner};Username=${POSTGRES_USER:-postgres};Password=${POSTGRES_PASSWORD:-yourpass}"
+      DefaultConnection: "Host=${POSTGRES_HOST:-db};Database=${POSTGRES_DB:-jobrunner};Username=${POSTGRES_USER:-postgres};Password=${POSTGRES_PASSWORD:-yourpass}"
     depends_on:
       db:
         condition: service_healthy
