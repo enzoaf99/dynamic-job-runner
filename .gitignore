@@ -1,6 +1,3 @@
-﻿# Ignorar la carpeta de configuración de JetBrains Rider
-.idea/
-
-# Ignorar el archivo de configuración del usuario
+﻿.idea/
 *.sln.DotSettings.user
 **obj/
