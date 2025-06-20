@@ -3,3 +3,4 @@
 
 # Ignorar el archivo de configuración del usuario
 *.sln.DotSettings.user
+**obj/
