@@ -17,8 +17,6 @@ RUN dotnet publish -c Release -o /app/publish /p:UseAppHost=false
 FROM base AS final
 WORKDIR /app
 COPY --from=build /app/publish .
-COPY .env ./
-RUN export $(grep -v '^#' .env | xargs)
 ENV ConnectionStrings__Default="Host=${POSTGRES_HOST:-db};Database=${POSTGRES_DB:-jobrunner};Username=${POSTGRES_USER:-postgres};Password=${POSTGRES_PASSWORD:-yourpass}"
 
 ENTRYPOINT ["dotnet", "DynamicJobRunnerApp.dll"]
