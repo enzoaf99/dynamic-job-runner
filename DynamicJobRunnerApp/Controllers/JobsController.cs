@@ -38,19 +38,19 @@ public class JobsController : Controller
 
             if (!jobs.Any())
             {
-                _logger.LogInformation("No se encontraron jobs configurados");
+                _logger.LogInformation("No jobs found");
             }
             else
             {
-                _logger.LogInformation("Se encontraron {JobCount} jobs configurados", jobs.Count);
+                _logger.LogInformation("{JobCount} jobs found", jobs.Count);
             }
 
             return View(jobs);
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Error al obtener la lista de jobs");
-            TempData["Error"] = "Error al cargar los jobs";
+            _logger.LogError(ex, "Error fetching job list");
+            TempData["Error"] = "Error loading jobs";
             return View(new List<JobDefinition>());
         }
     }
@@ -62,37 +62,37 @@ public class JobsController : Controller
     {
         try
         {
-            _logger.LogInformation("Intentando crear nuevo job: {JobName}", job.Name);
+            _logger.LogInformation("Attempting to create new job: {JobName}", job.Name);
 
             if (!ModelState.IsValid)
             {
                 return View(job);
             }
 
-            // Validar la expresión cron
+            // Validate cron expression
             CronExpression.ValidateExpression(job.CronExpression);
 
-            job.IsActive = true; // Por defecto activo
+            job.IsActive = true; // Default to active
             _db.JobDefinitions.Add(job);
             await _db.SaveChangesAsync();
 
             await _jobScheduler.ScheduleJob(job);
 
-            _logger.LogInformation("Job creado exitosamente: {JobId} ({JobName})", job.Id, job.Name);
-            TempData["Message"] = "Job creado exitosamente";
+            _logger.LogInformation("Job successfully created: {JobId} ({JobName})", job.Id, job.Name);
+            TempData["Message"] = "Job successfully created";
 
             return RedirectToAction("Index");
         }
         catch (FormatException)
         {
-            _logger.LogWarning("Expresión cron inválida para job: {JobName}", job.Name);
-            ModelState.AddModelError("CronExpression", "La expresión cron no es válida");
+            _logger.LogWarning("Invalid cron expression for job: {JobName}", job.Name);
+            ModelState.AddModelError("CronExpression", "The cron expression is not valid");
             return View(job);
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Error al crear job: {JobName}", job.Name);
-            ModelState.AddModelError("", $"Error al crear el job: {ex.Message}");
+            _logger.LogError(ex, "Error creating job: {JobName}", job.Name);
+            ModelState.AddModelError("", $"Error creating job: {ex.Message}");
             return View(job);
         }
     }
@@ -101,27 +101,27 @@ public class JobsController : Controller
     {
         try
         {
-            _logger.LogInformation("Consultando historial del job {JobId}", id);
+            _logger.LogInformation("Fetching history for job {JobId}", id);
 
             var job = await _db.JobDefinitions.FindAsync(id);
             if (job == null)
             {
-                _logger.LogWarning("Job no encontrado: {JobId}", id);
+                _logger.LogWarning("Job not found: {JobId}", id);
                 return NotFound();
             }
 
-            var historial = await _db.JobSchedules
+            var history = await _db.JobSchedules
                 .Where(x => x.JobDefinitionId == id)
                 .OrderByDescending(x => x.EnqueuedAt)
                 .ToListAsync();
 
             ViewBag.JobName = job.Name;
-            return View(historial);
+            return View(history);
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Error al obtener historial del job {JobId}", id);
-            TempData["Error"] = "Error al cargar el historial";
+            _logger.LogError(ex, "Error fetching job history {JobId}", id);
+            TempData["Error"] = "Error loading job history";
             return RedirectToAction("Index");
         }
     }
@@ -134,11 +134,11 @@ public class JobsController : Controller
             var job = await _db.JobDefinitions.FindAsync(id);
             if (job == null)
             {
-                _logger.LogWarning("Intento de cambiar estado de job inexistente: {JobId}", id);
+                _logger.LogWarning("Attempt to toggle non-existent job status: {JobId}", id);
                 return NotFound();
             }
 
-            _logger.LogInformation("Cambiando estado del job {JobId} ({JobName}) de {OldStatus} a {NewStatus}",
+            _logger.LogInformation("Toggling job {JobId} ({JobName}) status from {OldStatus} to {NewStatus}",
                 id, job.Name, job.IsActive, !job.IsActive);
 
             job.IsActive = !job.IsActive;
@@ -154,13 +154,13 @@ public class JobsController : Controller
 
             await _db.SaveChangesAsync();
 
-            TempData["Message"] = $"Job {(job.IsActive ? "activado" : "desactivado")} exitosamente";
+            TempData["Message"] = $"Job {(job.IsActive ? "activated" : "deactivated")} successfully";
             return RedirectToAction(nameof(Index));
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Error al cambiar estado del job {JobId}", id);
-            TempData["Error"] = "Error al cambiar el estado del job";
+            _logger.LogError(ex, "Error toggling job status {JobId}", id);
+            TempData["Error"] = "Error toggling job status";
             return RedirectToAction(nameof(Index));
         }
     }
@@ -169,12 +169,12 @@ public class JobsController : Controller
     {
         try
         {
-            _logger.LogInformation("Intentando editar job: {JobId}", id);
+            _logger.LogInformation("Attempting to edit job: {JobId}", id);
 
             var job = await _db.JobDefinitions.FindAsync(id);
             if (job == null)
             {
-                _logger.LogWarning("Job no encontrado para editar: {JobId}", id);
+                _logger.LogWarning("Job not found for editing: {JobId}", id);
                 return NotFound();
             }
 
@@ -182,8 +182,8 @@ public class JobsController : Controller
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Error al cargar job para editar: {JobId}", id);
-            TempData["Error"] = "Error al cargar el job";
+            _logger.LogError(ex, "Error fetching job {JobId} for editing", id);
+            TempData["Error"] = "Error loading job";
             return RedirectToAction(nameof(Index));
         }
     }
@@ -194,7 +194,7 @@ public class JobsController : Controller
     {
         if (id != job.Id)
         {
-            _logger.LogWarning("ID no coincide al editar job: {JobId}", id);
+            _logger.LogWarning("Mismatched ID when editing job: {JobId}", id);
             return NotFound();
         }
 
@@ -205,22 +205,22 @@ public class JobsController : Controller
 
         try
         {
-            // Validar la expresión cron
+            // Validate cron expression
             CronExpression.ValidateExpression(job.CronExpression);
 
             var existingJob = await _db.JobDefinitions.FindAsync(id);
             if (existingJob == null)
             {
-                _logger.LogWarning("Job no encontrado al guardar cambios: {JobId}", id);
+                _logger.LogWarning("Job not found when saving changes: {JobId}", id);
                 return NotFound();
             }
 
-            // Actualizar propiedades
+            // Update properties
             existingJob.Name = job.Name;
             existingJob.CronExpression = job.CronExpression;
             existingJob.Script = job.Script;
 
-            // Si el job está activo, actualizarlo en el scheduler
+            // If job is active, update it in the scheduler
             if (existingJob.IsActive)
             {
                 await _jobScheduler.UnscheduleJob(id);
@@ -229,40 +229,39 @@ public class JobsController : Controller
 
             await _db.SaveChangesAsync();
 
-            _logger.LogInformation("Job actualizado exitosamente: {JobId}", id);
-            TempData["Message"] = "Job actualizado correctamente";
+            _logger.LogInformation("Job successfully updated: {JobId}", id);
+            TempData["Message"] = "Job successfully updated";
             return RedirectToAction(nameof(Index));
         }
         catch (FormatException)
         {
-            _logger.LogWarning("Expresión cron inválida al editar job: {JobId}", id);
-            ModelState.AddModelError("CronExpression", "La expresión cron no es válida");
+            _logger.LogWarning("Invalid cron expression when editing job: {JobId}", id);
+            ModelState.AddModelError("CronExpression", "The cron expression is not valid");
             return View(job);
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Error al actualizar job: {JobId}", id);
-            ModelState.AddModelError("", $"Error al actualizar el job: {ex.Message}");
+            _logger.LogError(ex, "Error updating job: {JobId}", id);
+            ModelState.AddModelError("", $"Error updating job: {ex.Message}");
             return View(job);
         }
     }
-    
+
     public async Task<IActionResult> Executions(int page = 1)
     {
-        const int pageSize = 20; // Tamaño de página
+        const int pageSize = 20;
 
         try
         {
-            // Obtener las ejecuciones ordenadas por las más recientes
+            // Fetch executions ordered by most recent
             var totalExecutions = await _db.JobSchedules.CountAsync();
             var executions = await _db.JobSchedules
                 .OrderByDescending(x => x.EnqueuedAt)
-                .Skip((page - 1) * pageSize) // Paginación
+                .Skip((page - 1) * pageSize)
                 .Take(pageSize)
-                .Include(e => e.JobDefinition) // Incluir información del Job relacionado (si existe)
+                .Include(e => e.JobDefinition)
                 .ToListAsync();
 
-            // Crear un modelo para enviar datos a la vista
             var viewModel = new ExecutionListViewModel
             {
                 Executions = executions,
@@ -274,73 +273,62 @@ public class JobsController : Controller
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Error al cargar las ejecuciones.");
-            TempData["Error"] = "Error al cargar las ejecuciones.";
+            _logger.LogError(ex, "Error loading executions.");
+            TempData["Error"] = "Error loading executions.";
             return RedirectToAction(nameof(Index));
         }
     }
-    
+
     [HttpPost]
     public async Task<IActionResult> CancelExecution(Guid id)
     {
         try
         {
             var execution = await _db.JobSchedules
-                .Include(e => e.JobDefinition) // Incluimos JobDefinition
+                .Include(e => e.JobDefinition)
                 .FirstOrDefaultAsync(e => e.Id == id);
 
             if (execution == null || execution.Status != JobStatus.Running)
             {
-                TempData["Error"] = "No se puede cancelar la ejecución.";
+                TempData["Error"] = "Cannot cancel the execution.";
                 return RedirectToAction(nameof(Executions));
             }
 
-            // Cancelar job utilizando el servicio
+            // Cancel job using the service
             await _jobScheduler.CancelExecution(execution.JobDefinition.Id);
 
-            // Cambiar el estado a Cancelled
+            // Change status to Canceled
             execution.Status = JobStatus.Canceled;
             await _db.SaveChangesAsync();
 
-            TempData["Message"] = "La ejecución fue cancelada correctamente.";
+            TempData["Message"] = "Execution successfully canceled.";
             return RedirectToAction(nameof(Executions));
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Error al intentar cancelar la ejecución.");
-            TempData["Error"] = "Error al cancelar la ejecución.";
+            _logger.LogError(ex, "Error attempting to cancel execution.");
+            TempData["Error"] = "Error canceling the execution.";
             return RedirectToAction(nameof(Executions));
         }
     }
-    
+
     public async Task<IActionResult> Home()
     {
-        // Get total number of jobs created
         var totalJobs = await _db.JobDefinitions.CountAsync();
-
-        // Get the total number of jobs failed in the last week
         var lastWeek = DateTime.UtcNow.AddDays(-7);
         var failedJobs = await _db.JobSchedules
             .CountAsync(s => s.Status == Enums.JobStatus.Failed && s.EnqueuedAt >= lastWeek);
-
-        // Get the number of active jobs
         var activeJobs = await _db.JobDefinitions.CountAsync(j => j.IsActive);
-
-        // Get the number of successfully completed jobs in the last week
         var completedJobsLastWeek = await _db.JobSchedules
             .CountAsync(s => s.Status == Enums.JobStatus.Success && s.EnqueuedAt >= lastWeek);
-
-        // Get the number of jobs currently running
         var runningJobs = await _db.JobSchedules.CountAsync(s => s.Status == Enums.JobStatus.Running);
 
-        // Get the last 5 recently enqueued jobs
         var lastEnqueuedJobs = await _db.JobSchedules
             .OrderByDescending(s => s.EnqueuedAt)
             .Take(5)
-            .Select(s => new { s.JobDefinition.Name, s.EnqueuedAt }) // Select only required fields
+            .Select(s => new { s.JobDefinition.Name, s.EnqueuedAt })
             .ToListAsync();
 
-        // Pass all calculated KPIs to the view model
         var model = new HomeViewModel
         {
             TotalJobs = totalJobs,
@@ -348,10 +336,11 @@ public class JobsController : Controller
             ActiveJobs = activeJobs,
             CompletedJobsLastWeek = completedJobsLastWeek,
             RunningJobs = runningJobs,
-            LastEnqueuedJobs = lastEnqueuedJobs.Select(j => $"{j.Name}, enqueued at {j.EnqueuedAt:yyyy-MM-dd HH:mm}").ToList()
+            LastEnqueuedJobs = lastEnqueuedJobs
+                .Select(j => $"{j.Name}, enqueued at {j.EnqueuedAt:yyyy-MM-dd HH:mm}")
+                .ToList()
         };
 
-        // Return the view with model data
         return View(model);
     }
 }

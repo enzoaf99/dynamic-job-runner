@@ -19,9 +19,9 @@ public class QuartzJobWrapper : IJob
 
     public async Task Execute(IJobExecutionContext context)
     {
-        _logger.LogInformation("=== Iniciando Ejecución del Job ===");
+        _logger.LogInformation("=== Starting Job Execution ===");
         _logger.LogInformation("JobKey: {JobKey}", context.JobDetail.Key);
-        _logger.LogInformation("Descripción: {Description}", context.JobDetail.Description);
+        _logger.LogInformation("Description: {Description}", context.JobDetail.Description);
 
         Guid jobId;
         string jobName;
@@ -32,24 +32,24 @@ public class QuartzJobWrapper : IJob
 
             if (!jobDataMap.ContainsKey("jobId"))
             {
-                _logger.LogError("No se encontró jobId en JobDataMap");
+                _logger.LogError("jobId not found in JobDataMap");
                 return;
             }
 
             var jobIdString = jobDataMap.GetString("jobId");
             if (!Guid.TryParse(jobIdString, out jobId))
             {
-                _logger.LogError("JobId inválido: {JobId}", jobIdString);
+                _logger.LogError("Invalid JobId: {JobId}", jobIdString);
                 return;
             }
 
-            jobName = jobDataMap.GetString("jobName") ?? "Desconocido";
+            jobName = jobDataMap.GetString("jobName") ?? "Unknown";
 
-            _logger.LogInformation("Procesando job: {JobName} (ID: {JobId})", jobName, jobId);
+            _logger.LogInformation("Processing job: {JobName} (ID: {JobId})", jobName, jobId);
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Error al obtener información del job del contexto");
+            _logger.LogError(ex, "Error fetching job information from context");
             return;
         }
 
@@ -59,7 +59,7 @@ public class QuartzJobWrapper : IJob
         var job = await db.JobDefinitions.FindAsync(jobId);
         if (job == null)
         {
-            _logger.LogWarning("No se encontró la definición del job {JobName} (ID: {JobId})", jobName, jobId);
+            _logger.LogWarning("Job definition not found for {JobName} (ID: {JobId})", jobName, jobId);
             return;
         }
 
@@ -75,7 +75,7 @@ public class QuartzJobWrapper : IJob
             db.JobSchedules.Add(schedule);
             await db.SaveChangesAsync();
 
-            _logger.LogInformation("Ejecutando script para job {JobName} (ID: {JobId})", job.Name, jobId);
+            _logger.LogInformation("Executing script for job {JobName} (ID: {JobId})", job.Name, jobId);
 
             var (output, error, code) = await ExecuteJobWithInterruptions(context, job.Script);
 
@@ -84,18 +84,18 @@ public class QuartzJobWrapper : IJob
             schedule.Output = output;
             schedule.Error = error;
 
-            _logger.LogInformation("Job {JobName} (ID: {JobId}) completado con código: {ExitCode}", job.Name, jobId, code);
+            _logger.LogInformation("Job {JobName} (ID: {JobId}) completed with code: {ExitCode}", job.Name, jobId, code);
         }
         catch (OperationCanceledException)
         {
-            _logger.LogWarning("Ejecución interrumpida para el Job {JobName} (ID: {JobId}).", job.Name, jobId);
+            _logger.LogWarning("Execution interrupted for Job {JobName} (ID: {JobId}).", job.Name, jobId);
 
             schedule.ExecutedAt = DateTime.UtcNow;
             schedule.Status = JobStatus.Canceled;
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Error ejecutando job {JobName} (ID: {JobId})", job.Name, jobId);
+            _logger.LogError(ex, "Error executing job {JobName} (ID: {JobId})", job.Name, jobId);
 
             schedule.ExecutedAt = DateTime.UtcNow;
             schedule.Status = JobStatus.Failed;
@@ -106,11 +106,11 @@ public class QuartzJobWrapper : IJob
             try
             {
                 await db.SaveChangesAsync();
-                _logger.LogInformation("Resultado del job guardado correctamente para {JobName} (ID: {JobId})", job.Name, jobId);
+                _logger.LogInformation("Job result saved successfully for {JobName} (ID: {JobId})", job.Name, jobId);
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error guardando resultado del job {JobName} (ID: {JobId})", job.Name, jobId);
+                _logger.LogError(ex, "Error saving job result for {JobName} (ID: {JobId})", job.Name, jobId);
                 throw;
             }
         }
@@ -125,14 +125,14 @@ public class QuartzJobWrapper : IJob
         {
             if (context.CancellationToken.IsCancellationRequested)
             {
-                _logger.LogWarning("El trabajo ha sido interrumpido.");
-                throw new OperationCanceledException("Trabajo interrumpido.");
+                _logger.LogWarning("The job has been interrupted.");
+                throw new OperationCanceledException("Job interrupted.");
             }
 
-            _logger.LogInformation("Ejecutando parte {Step}", i + 1);
-            await Task.Delay(1000); // Simula trabajo prolongado
+            _logger.LogInformation("Executing part {Step}", i + 1);
+            await Task.Delay(1000); // Simulate prolonged work
         }
 
-        return (output, error, 0); // Asume éxito
+        return (output, error, 0); // Assume success
     }
 }

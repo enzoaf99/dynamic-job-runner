@@ -25,8 +25,8 @@ public class JobInitializer : IHostedService
     {
         try
         {
-            _logger.LogInformation("Iniciando programación de jobs...");
-            
+            _logger.LogInformation("Starting job scheduling...");
+
             using var scope = _serviceProvider.CreateScope();
             var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
             var scheduler = await _schedulerFactory.GetScheduler(cancellationToken);
@@ -34,8 +34,8 @@ public class JobInitializer : IHostedService
             var jobs = await db.JobDefinitions
                 .AsNoTracking()
                 .ToListAsync(cancellationToken);
-            
-            _logger.LogInformation("Se encontraron {JobCount} jobs para programar", jobs.Count);
+
+            _logger.LogInformation("Found {JobCount} jobs to schedule", jobs.Count);
 
             foreach (var jobDefinition in jobs)
             {
@@ -46,18 +46,18 @@ public class JobInitializer : IHostedService
                 catch (Exception ex)
                 {
                     _logger.LogError(ex, 
-                        "Error al programar el job {JobName} (ID: {JobId})", 
+                        "Error while scheduling job {JobName} (ID: {JobId})", 
                         jobDefinition.Name, 
                         jobDefinition.Id);
                 }
             }
 
             await scheduler.Start(cancellationToken);
-            _logger.LogInformation("Jobs inicializados correctamente");
+            _logger.LogInformation("Jobs initialized successfully");
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Error durante la inicialización de jobs");
+            _logger.LogError(ex, "Error during job initialization");
             throw;
         }
     }
@@ -66,11 +66,11 @@ public class JobInitializer : IHostedService
     {
         var jobKey = new JobKey(jobDefinition.Id.ToString());
 
-        // Verificar si el job ya existe
+        // Check if the job already exists
         if (await scheduler.CheckExists(jobKey, cancellationToken))
         {
             _logger.LogInformation(
-                "Job {JobName} (ID: {JobId}) ya existe, reemplazando...", 
+                "Job {JobName} (ID: {JobId}) already exists, replacing...", 
                 jobDefinition.Name, 
                 jobDefinition.Id);
             
@@ -96,13 +96,13 @@ public class JobInitializer : IHostedService
         var trigger = TriggerBuilder.Create()
             .WithIdentity(triggerKey)
             .WithCronSchedule(jobDefinition.CronExpression)
-            .WithDescription($"Trigger para {jobDefinition.Name}")
+            .WithDescription($"Trigger for {jobDefinition.Name}")
             .Build();
 
         await scheduler.ScheduleJob(job, trigger, cancellationToken);
         
         _logger.LogInformation(
-            "Job {JobName} (ID: {JobId}) programado exitosamente con cron: {CronExpression}", 
+            "Job {JobName} (ID: {JobId}) successfully scheduled with cron: {CronExpression}", 
             jobDefinition.Name, 
             jobDefinition.Id, 
             jobDefinition.CronExpression);
@@ -114,11 +114,11 @@ public class JobInitializer : IHostedService
         {
             var scheduler = await _schedulerFactory.GetScheduler(cancellationToken);
             await scheduler.Shutdown(waitForJobsToComplete: true, cancellationToken);
-            _logger.LogInformation("Scheduler detenido correctamente");
+            _logger.LogInformation("Scheduler shut down successfully");
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Error al detener el scheduler");
+            _logger.LogError(ex, "Error while shutting down the scheduler");
             throw;
         }
     }

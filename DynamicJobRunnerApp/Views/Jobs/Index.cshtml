@@ -18,15 +18,15 @@
     </div>
 }
 
-<a class="btn btn-primary mb-3" href="@Url.Action("Create", "Jobs")">Crear Job</a>
+<a class="btn btn-primary mb-3" href="@Url.Action("Create", "Jobs")">Create Job</a>
 
 @if (!Model.Any())
 {
     <div class="alert alert-info">
-        <h4 class="alert-heading">No hay jobs configurados</h4>
-        <p>Actualmente no hay ningún job programado en el sistema.</p>
+        <h4 class="alert-heading">No jobs configured</h4>
+        <p>There are currently no scheduled jobs in the system.</p>
         <hr>
-        <p class="mb-0">Para comenzar, haga clic en el botón "Crear Job" y configure su primer tarea programada.</p>
+        <p class="mb-0">To get started, click the "Create Job" button and configure your first scheduled task.</p>
     </div>
 }
 else
@@ -34,11 +34,11 @@ else
     <table class="table table-striped">
         <thead>
         <tr>
-            <th>Nombre</th>
+            <th>Name</th>
             <th>Cron</th>
             <th>Script</th>
-            <th>Estado</th>
-            <th>Acciones</th>
+            <th>Status</th>
+            <th>Actions</th>
         </tr>
         </thead>
         <tbody>
@@ -50,19 +50,19 @@ else
                 <td><code>@job.Script</code></td>
                 <td>
                         <span class="badge @(job.IsActive ? "bg-success" : "bg-secondary")">
-                            @(job.IsActive ? "Activo" : "Inactivo")
+                            @(job.IsActive ? "Active" : "Inactive")
                         </span>
                 </td>
                 <td>
                     <div class="btn-group">
                         <form asp-action="ToggleStatus" asp-route-id="@job.Id" method="post" style="display: inline;">
                             <button type="submit" class="btn btn-sm @(job.IsActive ? "btn-warning" : "btn-success")"
-                                    onclick="return confirm('¿Está seguro de @(job.IsActive ? "desactivar" : "activar") este job?')">
-                                @(job.IsActive ? "Desactivar" : "Activar")
+                                    onclick="return confirm('Are you sure you want to @(job.IsActive ? "deactivate" : "activate") this job?')">
+                                @(job.IsActive ? "Deactivate" : "Activate")
                             </button>
                         </form>
-                        <a class="btn btn-sm btn-primary" asp-action="Edit" asp-route-id="@job.Id">Editar</a>
-                        <a class="btn btn-sm btn-info" href="@Url.Action("History", "Jobs", new { id = job.Id })">Historial</a>
+                        <a class="btn btn-sm btn-primary" asp-action="Edit" asp-route-id="@job.Id">Edit</a>
+                        <a class="btn btn-sm btn-info" href="@Url.Action("History", "Jobs", new { id = job.Id })">History</a>
                     </div>
                 </td>
             </tr>

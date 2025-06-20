@@ -7,26 +7,27 @@ public class JobDefinition
 {
     public Guid Id { get; set; }
     
-    [Required(ErrorMessage = "El nombre es requerido")]
+    [Required(ErrorMessage = "The name is required")]
     public string Name { get; set; }
     
-    [Required(ErrorMessage = "El script es requerido")]
+    [Required(ErrorMessage = "The script is required")]
     public string Script { get; set; }
     
-    [Required(ErrorMessage = "La expresión cron es requerida")]
-    [CronExpression(ErrorMessage = "La expresión cron no es válida")]
+    [Required(ErrorMessage = "The cron expression is required")]
+    [CronExpression(ErrorMessage = "The cron expression is not valid")]
     public string CronExpression { get; set; }
+    
     public bool IsActive { get; set; } = true;
 }
 
-// Atributo personalizado para validar expresión cron
+// Custom attribute to validate cron expression
 public class CronExpressionAttribute : ValidationAttribute
 {
     protected override ValidationResult IsValid(object value, ValidationContext validationContext)
     {
         var cronExpression = value as string;
         if (string.IsNullOrEmpty(cronExpression))
-            return new ValidationResult("La expresión cron es requerida");
+            return new ValidationResult("The cron expression is required");
 
         try
         {
@@ -35,7 +36,7 @@ public class CronExpressionAttribute : ValidationAttribute
         }
         catch
         {
-            return new ValidationResult("La expresión cron no es válida");
+            return new ValidationResult("The cron expression is not valid");
         }
     }
 }

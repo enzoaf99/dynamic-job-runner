@@ -2,7 +2,7 @@
 
 <form asp-action="Create" method="post">
     <div class="form-group">
-        <label asp-for="Name">Nombre</label>
+        <label asp-for="Name">Name</label>
         <input asp-for="Name" class="form-control" />
         <span asp-validation-for="Name" class="text-danger"></span>
     </div>
@@ -14,15 +14,15 @@
     </div>
 
     <div class="form-group">
-        <label asp-for="CronExpression">Expresión Cron</label>
+        <label asp-for="CronExpression">Cron Expression</label>
         <input asp-for="CronExpression" class="form-control" />
         <span asp-validation-for="CronExpression" class="text-danger"></span>
         <small class="form-text text-muted">
-            Ejemplos:<br/>
-            "0 0/5 * * * ?" - Cada 5 minutos<br/>
-            "0 0 12 * * ?" - Todos los días a las 12:00
+            Examples:<br/>
+            "0 0/5 * * * ?" - Every 5 minutes<br/>
+            "0 0 12 * * ?" - Every day at 12:00
         </small>
     </div>
 
-    <button type="submit" class="btn btn-primary">Crear</button>
+    <button type="submit" class="btn btn-primary">Create</button>
 </form>

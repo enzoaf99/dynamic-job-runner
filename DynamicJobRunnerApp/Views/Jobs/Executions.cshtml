@@ -2,12 +2,12 @@
 @model DynamicJobRunnerApp.ViewModel.ExecutionListViewModel
 
 @{
-    ViewData["Title"] = "Ejecuciones";
+    ViewData["Title"] = "Executions";
 }
 
 <div class="container mt-4">
-    <h2>Ejecuciones de Jobs</h2>
-    
+    <h2>Job Executions</h2>
+
     @if (TempData["Message"] != null)
     {
         <div class="alert alert-success">@TempData["Message"]</div>
@@ -20,67 +20,67 @@
 
     <table class="table table-striped">
         <thead>
-            <tr>
-                <th>#</th>
-                <th>Job</th>
-                <th>Inicio</th>
-                <th>Fin</th>
-                <th>Estado</th>
-                <th>Acciones</th>
-            </tr>
+        <tr>
+            <th>#</th>
+            <th>Job</th>
+            <th>Start</th>
+            <th>End</th>
+            <th>Status</th>
+            <th>Actions</th>
+        </tr>
         </thead>
         <tbody>
-            @if (Model.Executions.Count == 0)
+        @if (Model.Executions.Count == 0)
+        {
+            <tr>
+                <td colspan="6" class="text-center">No executions found.</td>
+            </tr>
+        }
+        else
+        {
+            @foreach (var execution in Model.Executions)
             {
                 <tr>
-                    <td colspan="6" class="text-center">No se encontraron ejecuciones.</td>
+                    <td>@execution.Id</td>
+                    <td>@execution.JobDefinition?.Name</td>
+                    <td>@execution.EnqueuedAt.ToString("dd/MM/yyyy HH:mm")</td>
+                    <td>@execution.ExecutedAt?.ToString("dd/MM/yyyy HH:mm")</td>
+                    <td>
+                        @if (execution.Status == JobStatus.Running)
+                        {
+                            <span class="badge bg-primary">In progress</span>
+                        }
+                        else if (execution.Status == JobStatus.Success)
+                        {
+                            <span class="badge bg-success">Completed</span>
+                        }
+                        else if (execution.Status == JobStatus.Canceled)
+                        {
+                            <span class="badge bg-warning">Canceled</span>
+                        }
+                        else
+                        {
+                            <span class="badge bg-secondary">@execution.Status</span>
+                        }
+                    </td>
+                    <td>
+                        @if (execution.Status == JobStatus.Awaiting || execution.Status == JobStatus.Running)
+                        {
+                            <form asp-action="CancelExecution" method="post" class="d-inline">
+                                <input type="hidden" name="id" value="@execution.Id" />
+                                <button type="submit" class="btn btn-danger btn-sm">
+                                    Cancel
+                                </button>
+                            </form>
+                        }
+                    </td>
                 </tr>
             }
-            else
-            {
-                @foreach (var execution in Model.Executions)
-                {
-                    <tr>
-                        <td>@execution.Id</td>
-                        <td>@execution.JobDefinition?.Name</td>
-                        <td>@execution.EnqueuedAt.ToString("dd/MM/yyyy HH:mm")</td>
-                        <td>@execution.ExecutedAt?.ToString("dd/MM/yyyy HH:mm")</td>
-                        <td>
-                            @if (execution.Status == JobStatus.Running)
-                            {
-                                <span class="badge bg-primary">En progreso</span>
-                            }
-                            else if (execution.Status == JobStatus.Success)
-                            {
-                                <span class="badge bg-success">Finalizado</span>
-                            }
-                            else if (execution.Status == JobStatus.Canceled)
-                            {
-                                <span class="badge bg-warning">Cancelado</span>
-                            }
-                            else
-                            {
-                                <span class="badge bg-secondary">@execution.Status</span>
-                            }
-                        </td>
-                        <td>
-                            @if (execution.Status == JobStatus.Awaiting || execution.Status == JobStatus.Running)
-                            {
-                                <form asp-action="CancelExecution" method="post" class="d-inline">
-                                    <input type="hidden" name="id" value="@execution.Id" />
-                                    <button type="submit" class="btn btn-danger btn-sm">
-                                        Cancelar
-                                    </button>
-                                </form>
-                            }
-                        </td>
-                    </tr>
-                }
-            }
+        }
         </tbody>
     </table>
 
-    <!-- Paginación -->
+    <!-- Pagination -->
     <nav>
         <ul class="pagination">
             @for (var i = 1; i <= Model.TotalPages; i++)

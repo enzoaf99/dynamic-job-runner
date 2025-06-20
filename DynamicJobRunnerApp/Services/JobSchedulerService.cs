@@ -36,12 +36,12 @@ public class JobSchedulerService : IJobSchedulerService
         try
         {
             var scheduler = await _schedulerFactory.GetScheduler();
-            _logger.LogDebug("Scheduler obtenido correctamente");
+            _logger.LogDebug("Scheduler retrieved successfully");
             return scheduler;
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Error al obtener el scheduler");
+            _logger.LogError(ex, "Error while retrieving the scheduler");
             throw;
         }
     }
@@ -50,7 +50,7 @@ public class JobSchedulerService : IJobSchedulerService
     {
         try
         {
-            _logger.LogInformation("Iniciando programación del job {JobId} ({JobName})", job.Id, job.Name);
+            _logger.LogInformation("Starting job scheduling {JobId} ({JobName})", job.Id, job.Name);
             
             var scheduler = await GetScheduler();
             
@@ -63,17 +63,17 @@ public class JobSchedulerService : IJobSchedulerService
             var trigger = TriggerBuilder.Create()
                 .WithIdentity($"trigger_{job.Id}")
                 .WithCronSchedule(job.CronExpression)
-                .WithDescription($"Trigger para {job.Name}")
+                .WithDescription($"Trigger for {job.Name}")
                 .Build();
 
             await scheduler.ScheduleJob(jobDetail, trigger);
             
-            _logger.LogInformation("Job {JobId} ({JobName}) programado exitosamente con cron {CronExpression}", 
+            _logger.LogInformation("Job {JobId} ({JobName}) successfully scheduled with cron {CronExpression}", 
                 job.Id, job.Name, job.CronExpression);
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Error al programar el job {JobId} ({JobName})", job.Id, job.Name);
+            _logger.LogError(ex, "Error while scheduling job {JobId} ({JobName})", job.Id, job.Name);
             throw;
         }
     }
@@ -82,13 +82,13 @@ public class JobSchedulerService : IJobSchedulerService
     {
         try
         {
-            _logger.LogInformation("Iniciando inicialización de jobs");
+            _logger.LogInformation("Starting job initialization");
             
             var jobs = await _db.JobDefinitions
                 .Where(j => j.IsActive)
                 .ToListAsync();
             
-            _logger.LogInformation("Encontrados {JobCount} jobs activos para inicializar", jobs.Count);
+            _logger.LogInformation("Found {JobCount} active jobs to initialize", jobs.Count);
             
             foreach (var job in jobs)
             {
@@ -98,16 +98,16 @@ public class JobSchedulerService : IJobSchedulerService
                 }
                 catch (Exception ex)
                 {
-                    _logger.LogError(ex, "Error al inicializar el job {JobId} ({JobName}). Continuando con el siguiente job", 
+                    _logger.LogError(ex, "Error while initializing job {JobId} ({JobName}). Continuing with the next job", 
                         job.Id, job.Name);
                 }
             }
             
-            _logger.LogInformation("Finalizada la inicialización de jobs");
+            _logger.LogInformation("Job initialization completed");
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Error durante la inicialización de jobs");
+            _logger.LogError(ex, "Error during job initialization");
             throw;
         }
     }
@@ -116,12 +116,12 @@ public class JobSchedulerService : IJobSchedulerService
     {
         try
         {
-            _logger.LogInformation("Iniciando desprogramación del job {JobId}", jobId);
+            _logger.LogInformation("Starting the unscheduling of job {JobId}", jobId);
             
             var job = await _db.JobDefinitions.FindAsync(jobId);
             if (job == null)
             {
-                _logger.LogWarning("No se encontró el job {JobId} en la base de datos", jobId);
+                _logger.LogWarning("Job {JobId} not found in the database", jobId);
                 return;
             }
 
@@ -129,35 +129,35 @@ public class JobSchedulerService : IJobSchedulerService
             var jobKey = new JobKey(jobId.ToString());
             var triggerKey = new TriggerKey($"trigger_{jobId}");
 
-            // Verificar si el job existe en el scheduler
+            // Check if the job exists in the scheduler
             var jobExists = await scheduler.CheckExists(jobKey);
             if (!jobExists)
             {
-                _logger.LogWarning("El job {JobId} ({JobName}) no existe en el scheduler", jobId, job.Name);
+                _logger.LogWarning("Job {JobId} ({JobName}) does not exist in the scheduler", jobId, job.Name);
                 return;
             }
 
-            // Pausar el trigger
-            _logger.LogDebug("Pausando trigger para job {JobId} ({JobName})", jobId, job.Name);
+            // Pause the trigger
+            _logger.LogDebug("Pausing trigger for job {JobId} ({JobName})", jobId, job.Name);
             await scheduler.PauseTrigger(triggerKey);
             
-            // Eliminar trigger y job
-            _logger.LogDebug("Eliminando trigger y job {JobId} ({JobName})", jobId, job.Name);
+            // Remove the trigger and job
+            _logger.LogDebug("Removing trigger and job {JobId} ({JobName})", jobId, job.Name);
             await scheduler.UnscheduleJob(triggerKey);
             var jobDeleted = await scheduler.DeleteJob(jobKey);
 
             if (jobDeleted)
             {
-                _logger.LogInformation("Job {JobId} ({JobName}) desprogramado exitosamente", jobId, job.Name);
+                _logger.LogInformation("Job {JobId} ({JobName}) successfully unscheduled", jobId, job.Name);
             }
             else
             {
-                _logger.LogWarning("No se pudo eliminar el job {JobId} ({JobName})", jobId, job.Name);
+                _logger.LogWarning("Failed to delete the job {JobId} ({JobName})", jobId, job.Name);
             }
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Error al desprogramar el job {JobId}", jobId);
+            _logger.LogError(ex, "Error while unscheduling the job {JobId}", jobId);
             throw;
         }
     }
@@ -172,17 +172,17 @@ public class JobSchedulerService : IJobSchedulerService
             try
             {
                 await scheduler.Interrupt(jobKey);
-                _logger.LogInformation("Ejecución del Job {JobId} interrumpida con éxito.", jobId);
+                _logger.LogInformation("Job execution {JobId} successfully interrupted.", jobId);
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error al interrumpir la ejecución del Job {JobId}.", jobId);
+                _logger.LogError(ex, "Error while interrupting the execution of job {JobId}.", jobId);
                 throw;
             }
         }
         else
         {
-            _logger.LogWarning("La ejecución del Job {JobId} no existe en el Scheduler.", jobId);
+            _logger.LogWarning("Execution of Job {JobId} does not exist in the Scheduler.", jobId);
         }
     }
 }
